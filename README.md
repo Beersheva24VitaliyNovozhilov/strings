@@ -3,9 +3,11 @@
 
 ## HWs
 
-* HW 10 - Strings Introduction
+[![Java CI with Maven](https://github.com/Beersheva24VitaliyNovozhilov/strings/actions/workflows/maven.yml/badge.svg)](https://github.com/Beersheva24VitaliyNovozhilov/strings/actions/workflows/maven.yml)
 
-Utility methods for working with arrays. Sorting, Searching, and other operations.
+* HW 10 - Strings Introduction / Regexes.
+
+Methods for working with Strings.
 
 ## Contributing
 
