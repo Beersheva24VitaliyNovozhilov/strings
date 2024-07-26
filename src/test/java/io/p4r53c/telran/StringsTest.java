@@ -29,7 +29,7 @@ class StringsTest {
 
                 String[] validVariableNames = { "variable1", "variable", "my_var", "isSynchronized", "__", "____",
                                 "$var" };
-                                
+
                 String[] invalidVariableNames = { "1variable", "int", "", "synchronized", "_", ".var", "v@r",
                                 "@var", "~var", "var~", "var-var" };
 
