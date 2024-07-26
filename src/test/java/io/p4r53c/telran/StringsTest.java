@@ -31,7 +31,7 @@ class StringsTest {
                                 "$var" };
                                 
                 String[] invalidVariableNames = { "1variable", "int", "", "synchronized", "_", ".var", "v@r",
-                                "@var", "~var", "var~" };
+                                "@var", "~var", "var~", "var-var" };
 
                 Arrays.stream(validVariableNames)
                                 .forEach(variableName -> assertTrue(
