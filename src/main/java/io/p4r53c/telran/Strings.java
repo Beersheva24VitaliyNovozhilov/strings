@@ -6,9 +6,7 @@ public class Strings {
     }
 
     /**
-     * Returns a regular expression pattern for a valid first name. The pattern
-     * matches a string that starts with an uppercase letter followed by 4 or more
-     * lowercase letters.
+     * Returns a regular expression pattern for a valid first name.
      *
      * @return a string representing the regular expression pattern
      */
