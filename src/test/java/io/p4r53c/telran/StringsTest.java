@@ -12,8 +12,19 @@ import org.junit.jupiter.api.Test;
 class StringsTest {
 
     @Test
+    void testFirstName() {
+        String regex = Strings.getFirstNamePattern();
+
+        String[] validNames = { "Vitaliy", "Vitaly" };
+        String[] invalidNames = { "Vitaly1", "Vitaliy2", "" };
+
+        Arrays.stream(validNames).forEach(name -> assertTrue(name.matches(regex), "Expected valid: " + name));
+        Arrays.stream(invalidNames).forEach(name -> assertFalse(name.matches(regex), "Expected invalid: " + name));
+    }
+
+    @Test
     void testJavaVariable() {
-        String regex = Strings.javaVariable();
+        String regex = Strings.getJavaVariablePattern();
 
         String[] validVariableNames = { "variable1", "variable", "my_var", "isSynchronized" };
         String[] invalidVariableNames = { "1variable", "int", "", "synchronized" };
@@ -31,7 +42,7 @@ class StringsTest {
 
     @Test
     void testConventionalJavaVariable() {
-        String regex = Strings.conventionalJavaVariable();
+        String regex = Strings.getConventionalJavaVariablePattern();
 
         String[] validVariableNames = { "variableName", "variablename" };
         String[] invalidVariableNames = { "VariableName", "variable_name", "" };

@@ -2,6 +2,10 @@ package io.p4r53c.telran;
 
 public class Strings {
 
+    private static final String FIRST_NAME_PATTERN = "[A-Z][a-z]{4,}";
+    private static final String JAVA_VARIABLE_PATTERN = "^[a-zA-Z_$][a-zA-Z\\d_$]*$";
+    private static final String CONVENTIONAL_JAVA_VARIABLE_PATTERN = "^[a-z]+([A-Z][a-z]*)*$";
+
     private Strings() {
     }
 
@@ -10,8 +14,8 @@ public class Strings {
      *
      * @return a string representing the regular expression pattern
      */
-    public static String firstName() {
-        return "[A-Z][a-z]{4,}";
+    public static String getFirstNamePattern() {
+        return FIRST_NAME_PATTERN;
     }
 
     /**
@@ -19,8 +23,8 @@ public class Strings {
      *
      * @return a string representing the regular expression pattern
      */
-    public static String javaVariable() {
-        return "^[a-zA-Z_$][a-zA-Z\\d_$]*$";
+    public static String getJavaVariablePattern() {
+        return JAVA_VARIABLE_PATTERN;
     }
 
     /**
@@ -29,7 +33,7 @@ public class Strings {
      *
      * @return a string representing the regular expression pattern
      */
-    public static String conventionalJavaVariable() {
-        return "^[a-z]+([A-Z][a-z]*)*$";
+    public static String getConventionalJavaVariablePattern() {
+        return CONVENTIONAL_JAVA_VARIABLE_PATTERN;
     }
 }
