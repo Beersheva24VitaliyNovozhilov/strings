@@ -13,7 +13,7 @@ class StringsTest {
 
     @Test
     void testFirstName() {
-        String regex = Strings.getFirstNamePattern();
+        String regex = Strings.firstName();
 
         String[] validNames = { "Vitaliy", "Vitaly" };
         String[] invalidNames = { "Vitaly1", "Vitaliy2", "" };
@@ -24,10 +24,10 @@ class StringsTest {
 
     @Test
     void testJavaVariable() {
-        String regex = Strings.getJavaVariablePattern();
+        String regex = Strings.javaVariable();
 
-        String[] validVariableNames = { "variable1", "variable", "my_var", "isSynchronized" };
-        String[] invalidVariableNames = { "1variable", "int", "", "synchronized" };
+        String[] validVariableNames = { "variable1", "variable", "my_var", "isSynchronized", "__", "____", "$var" };
+        String[] invalidVariableNames = { "1variable", "int", "", "synchronized", "_", ".var", "_", "v@r", "@var", "~var", "var~" };
 
         Arrays.stream(validVariableNames)
                 .forEach(variableName -> assertTrue(
@@ -42,7 +42,7 @@ class StringsTest {
 
     @Test
     void testConventionalJavaVariable() {
-        String regex = Strings.getConventionalJavaVariablePattern();
+        String regex = Strings.conventionalJavaVariable();
 
         String[] validVariableNames = { "variableName", "variablename" };
         String[] invalidVariableNames = { "VariableName", "variable_name", "" };
