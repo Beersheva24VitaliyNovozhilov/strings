@@ -20,12 +20,12 @@ class StringsTest {
 
         Arrays.stream(validVariableNames)
                 .forEach(variableName -> assertTrue(
-                        variableName.matches(regex) && !SourceVersion.isKeyword(variableName),
+                        variableName.matches(regex) && !SourceVersion.isKeyword(variableName, SourceVersion.RELEASE_21),
                         "Expected valid: " + variableName));
 
         Arrays.stream(invalidVariableNames)
                 .forEach(variableName -> assertFalse(
-                        variableName.matches(regex) && !SourceVersion.isKeyword(variableName),
+                        variableName.matches(regex) && !SourceVersion.isKeyword(variableName, SourceVersion.RELEASE_21),
                         "Expected invalid: " + variableName));
     }
 
