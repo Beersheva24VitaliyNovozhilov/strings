@@ -6,6 +6,7 @@
 [![Java CI with Maven](https://github.com/Beersheva24VitaliyNovozhilov/strings/actions/workflows/maven.yml/badge.svg)](https://github.com/Beersheva24VitaliyNovozhilov/strings/actions/workflows/maven.yml)
 
 * HW 10 - Strings Introduction / Regexes.
+* HW 11 - Validation of arithmetic expressions.
 
 Methods for working with Strings.
 
