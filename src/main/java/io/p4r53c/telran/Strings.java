@@ -33,7 +33,7 @@ public class Strings {
             "synchronized", "this", "throw", "throws", "transient", "true",
             "try", "void", "volatile", "while" };
 
-    // CW 11 Consts
+    // HW 11 Consts
     private static final String DECIMAL_PATTERN = "\\d*\\.?\\d+(_\\d+)*(e[+-]?\\d+)?[dDfF]?";
     private static final String INTEGER_PATTERN = "\\d+(_\\d+)+[dDfF]?";
     private static final String HEX_PATTERN = "0[xX][0-9a-fA-F]+[lL]?";
