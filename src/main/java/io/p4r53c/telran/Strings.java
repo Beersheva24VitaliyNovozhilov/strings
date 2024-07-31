@@ -15,8 +15,9 @@ public class Strings {
     // "^(300|[12]\\d{2}|[1-9]\\d?|0)$"; // My solution
     // private static final String NUMBER_0_TO_300_PATTERN_CW =
     // "^[1-9]\\d?|[1-2]\\d{2}|300$|0$"; // CW
-    private static final String NUMBER_0_TO_300_PATTERN_PL = "^(300|[12]\\d{2}|[1-9]\\d?|(?=0$)0)$"; // Positive
-                                                                                                     // Lookahead
+
+    // Positive Lookahead
+    private static final String NUMBER_0_TO_300_PATTERN_PL = "^(300|[12]\\d{2}|[1-9]\\d?|(?=0$)0)$";
 
     // private static final String IPV4_OCTET_CORRECT_PATTERN =
     // "^(25[0-5]|2[0-4]\\d|1\\d{2}|[1-9]\\d?|0)$"; // No "00" and "000"
@@ -31,6 +32,13 @@ public class Strings {
             "return", "short", "static", "strictfp", "super", "switch",
             "synchronized", "this", "throw", "throws", "transient", "true",
             "try", "void", "volatile", "while" };
+
+    // CW 11 Consts
+    private static final String DECIMAL_PATTERN = "\\d*\\.?\\d+(_\\d+)*(e[+-]?\\d+)?[dDfF]?";
+    private static final String INTEGER_PATTERN = "\\d+(_\\d+)+[dDfF]?";
+    private static final String HEX_PATTERN = "0[xX][0-9a-fA-F]+[lL]?";
+    private static final String VARIABLE_PATTERN = "[a-zA-Z_$][\\w$]*";
+    private static final String BRACKET_PATTERN = "[()]";
 
     private Strings() {
     }
@@ -132,7 +140,6 @@ public class Strings {
         if (expression == null || expression.isEmpty()) {
             isValid = false;
         } else {
-            expression = expression.replaceAll("\\s+", "");
             isValid = hasValidBrackets(expression) && hasValidOperandsAndOperators(expression);
         }
 
@@ -179,7 +186,9 @@ public class Strings {
         int balance = 0;
         boolean isValid = true;
 
-        for (char c : expression.toCharArray()) {
+        int i = 0;
+        while (i < expression.length()) {
+            char c = expression.charAt(i);
             if (c == '(') {
                 balance++;
             } else if (c == ')') {
@@ -189,12 +198,12 @@ public class Strings {
                 isValid = false;
                 break;
             }
+            i++;
         }
 
         if (balance != 0) {
             isValid = false;
         }
-
         return isValid;
     }
 
@@ -207,44 +216,82 @@ public class Strings {
      */
     private static boolean hasValidOperandsAndOperators(String expression) {
         char[] chars = expression.toCharArray();
+
         boolean lastWasOperator = true;
         boolean hasOperator = false;
         boolean valid = true;
 
-        String operatorPattern = "[+\\-*/%]";
-        String operandPattern = "\\d*\\.?\\d+(_\\d+)*(e[+-]?\\d+)?[dDfF]?|\\d+(_\\d+)+[dDfF]?|0[xX][0-9a-fA-F]+[lL]?|[a-zA-Z_$][\\w$]*";
-        
-        int n = chars.length;
+        int i = 0;
 
-        for (int i = 0; i < n; i++) {
+        while (i < chars.length && valid) {
             char c = chars[i];
-            if (String.valueOf(c).matches(operatorPattern)) {
+            if (isOperator(c)) {
                 hasOperator = true;
                 if (lastWasOperator) {
                     valid = false;
-                    break;
+                } else {
+                    lastWasOperator = true;
+                    i++;
                 }
-                lastWasOperator = true;
-            } else if (Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '.') {
+            } else if (isOperandCharacter(c)) {
                 lastWasOperator = false;
 
                 String operand = getOperand(chars, i);
 
-                // No provided array of Java keywords!
-                if (!operand.matches(operandPattern) || SourceVersion.isKeyword(operand, SourceVersion.latest())) {
+                if (!isValidOperand(operand)) {
                     valid = false;
-                    break;
+                } else {
+                    i += getOperandLength(chars, i);
                 }
-
-                i += getOperandLength(chars, i) - 1;
-
-            } else if (c != '(' && c != ')') {
+            } else if (Character.isWhitespace(c) || String.valueOf(c).matches(BRACKET_PATTERN)) {
+                i++;
+            } else {
                 valid = false;
-                break;
             }
         }
-
         return valid && hasOperator && !lastWasOperator;
+    }
+
+    /**
+     * Returns a string representing the regular expression pattern for a valid operand.
+     *
+     * @return a regular expression pattern for a valid operand
+     */
+    private static String getOperandPattern() {
+        return String.format("%s|%s|%s|%s", DECIMAL_PATTERN, INTEGER_PATTERN, HEX_PATTERN, VARIABLE_PATTERN);
+    }
+
+    /**
+     * Checks if the given character is an operator.
+     *
+     * @param c the character to be checked
+     * @return true if the character is an operator, false otherwise
+     */
+    private static boolean isOperator(char c) {
+        String operatorPattern = "[+\\-*/%]";
+        return String.valueOf(c).matches(operatorPattern);
+    }
+
+    /**
+     * Checks if the given character is a valid operand character.
+     *
+     * @param c the character to be checked
+     * @return true if the character is a valid operand character, false otherwise
+     */
+    private static boolean isOperandCharacter(char c) {
+        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '.';
+    }
+
+    /**
+     * Checks if the given string is a valid operand by matching it against a
+     * pattern
+     * and checking if it is not a keyword in the source version.
+     *
+     * @param operand the string to be checked for validity
+     * @return true if the string is a valid operand, false otherwise
+     */
+    private static boolean isValidOperand(String operand) {
+        return operand.matches(getOperandPattern()) && !SourceVersion.isKeyword(operand);
     }
 
     /**
@@ -263,14 +310,12 @@ public class Strings {
 
         while (index < chars.length
                 && (Character.isLetterOrDigit(chars[index])
-                        || chars[index] == '_'
-                        || chars[index] == '$'
-                        || chars[index] == '.')) {
+                        || isOperandCharacter(chars[index])
+                        || Character.isWhitespace(chars[index]))) {
             operand.append(chars[index]);
             index++;
         }
-
-        return operand.toString();
+        return operand.toString().trim();
     }
 
     /**
@@ -286,11 +331,11 @@ public class Strings {
     private static int getOperandLength(char[] chars, int index) {
         int length = 0;
 
-        while (index + length < chars.length && (Character.isLetterOrDigit(chars[index + length])
-                || chars[index + length] == '_' || chars[index + length] == '$' || chars[index + length] == '.')) {
+        while (index + length < chars.length
+                && (Character.isLetterOrDigit(chars[index + length])
+                        || isOperandCharacter(chars[index + length]))) {
             length++;
         }
-
         return length;
     }
 }

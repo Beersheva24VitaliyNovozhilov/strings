@@ -75,6 +75,7 @@ class StringsTest {
                 Arrays.stream(invalidNumbers).forEach(number -> assertFalse(number.matches(regex),
                                 "Expected invalid: " + number));
         }
+
         @Test
         void testIpV4Octets() {
                 String regex = Strings.ipV4Octet();
@@ -121,6 +122,7 @@ class StringsTest {
                 Arrays.stream(invalidIpAddresses).forEach(ip -> assertFalse(ip.matches(regex),
                                 "Expected invalid: " + ip));
         }
+
         @Test
         void testStringWithJavaNames() {
                 String names = "123 1a _ abs int enum null lmn";
@@ -131,52 +133,68 @@ class StringsTest {
         // --- HW 11 ---
         @Test
         void testValidIsArithmeticExpression() {
-            assertTrue(Strings.isArithmeticExpression("(((a + b) * c))"));
-            assertTrue(Strings.isArithmeticExpression("(a + b) * c"));
-            assertTrue(Strings.isArithmeticExpression("3 + (2 / 1) * 5"));
-            assertTrue(Strings.isArithmeticExpression("a + b - c * d / e"));
-            assertTrue(Strings.isArithmeticExpression("(a + b) % (c / d)"));
-            assertTrue(Strings.isArithmeticExpression("(a + b) * (c - d) / (e + f)"));
-            assertTrue(Strings.isArithmeticExpression("1 + 2"));
-            assertTrue(Strings.isArithmeticExpression("1 + 2_000_000")); // thousand separator notation
-            assertTrue(Strings.isArithmeticExpression("(a % b) * 2_000_000"));
-            assertTrue(Strings.isArithmeticExpression("y + 2.1234e3")); // Exp
-            assertTrue(Strings.isArithmeticExpression("y + 2d")); // Double
-            assertTrue(Strings.isArithmeticExpression("y + 2f")); // Float
-            assertTrue(Strings.isArithmeticExpression("0xAB + 0xFF")); // Hex
-            assertTrue(Strings.isArithmeticExpression("1 % 2"));
-            assertTrue(Strings.isArithmeticExpression("3.14 + 2.71 * (3.14 + 2.71)"));
-            assertTrue(Strings.isArithmeticExpression("3.14 + .71"));  // it's legal, 3.85.
-            assertTrue(Strings.isArithmeticExpression("a + __"));
-            assertTrue(Strings.isArithmeticExpression("a + var"));
-            assertTrue(Strings.isArithmeticExpression("3 + $var")); 
-            assertTrue(Strings.isArithmeticExpression("(6 + 8) / my_var")); 
-            assertTrue(Strings.isArithmeticExpression("(iSSynchronized + _var) + 1")); 
-            assertTrue(Strings.isArithmeticExpression("(synchronized1 + _var) + 1")); 
+                String[] validExpressions = {
+                                "(((a + b) * c))",
+                                "(a + b) * c",
+                                "3 + (2 / 1) * 5",
+                                "a + b - c * d / e",
+                                "(a + b) % (c / d)",
+                                "(a + b) * (c - d) / (e + f)",
+                                "1 + 2",
+                                "1 + 2_000_000", // thousand separator notation
+                                "(a % b) * 2_000_000",
+                                "y + 2.1234e3", // Exp
+                                "y + 2d", // Double
+                                "y + 2f", // Float
+                                "0xAB + 0xFF", // Hex
+                                "1 % 2",
+                                "3.14 + 2.71 * (3.14 + 2.71)",
+                                "3.14 + .71", // it's legal, 3.85.
+                                "a + __",
+                                "a + var",
+                                "3 + $var",
+                                "(6 + 8) / my_var",
+                                "(iSSynchronized + _var) + 1",
+                                "(synchronized1 + _var) + 1",
+                                "ab + 10",
+                                "(ab + c) + 10"
+                };
+
+                Arrays.stream(validExpressions)
+                                .forEach(expression -> assertTrue(Strings.isArithmeticExpression(expression),
+                                                "Expected valid: " + expression));
         }
 
         @Test
         void testInvalidIsArithmeticExpression() {
-            assertFalse(Strings.isArithmeticExpression("3 * (4 + 5"));
-            assertFalse(Strings.isArithmeticExpression("(3 + 2) * (4 / 2))"));
-            assertFalse(Strings.isArithmeticExpression("a + (b - c) * d / e)"));
-            assertFalse(Strings.isArithmeticExpression("(1 . c) * d % e)"));
-            assertFalse(Strings.isArithmeticExpression("a + + b"));
-            assertFalse(Strings.isArithmeticExpression("1 + 2_000_"));
-            assertFalse(Strings.isArithmeticExpression("a + 3 *"));
-            assertFalse(Strings.isArithmeticExpression("* a + b"));
-            assertFalse(Strings.isArithmeticExpression("123 456"));
-            assertFalse(Strings.isArithmeticExpression("()"));
-            assertFalse(Strings.isArithmeticExpression("((a))"));
-            assertFalse(Strings.isArithmeticExpression("a++"));
-            assertFalse(Strings.isArithmeticExpression("(a + 5) * ++b"));
-            assertFalse(Strings.isArithmeticExpression("a + _")); 
-            assertFalse(Strings.isArithmeticExpression("a + synchronized"));
-            assertFalse(Strings.isArithmeticExpression("21"));
-            assertFalse(Strings.isArithmeticExpression("1 % ")); 
-            assertFalse(Strings.isArithmeticExpression(""));
-            assertFalse(Strings.isArithmeticExpression(" "));
-            assertFalse(Strings.isArithmeticExpression(null));
-        }
-}       
+                String[] invalidExpressions = {
+                                "3 * (4 + 5",
+                                "(3 + 2) * (4 / 2))",
+                                "a + (b - c) * d / e)",
+                                "(1 . c) * d % e)",
+                                "a + + b",
+                                "1 + 2_000_",
+                                "a + 3 *",
+                                "a b + 10", // No more operands merging
+                                "a b c + 10",
+                                "(a b c) + 10",
+                                "* a + b",
+                                "123 456",
+                                "()",
+                                "((a))",
+                                "a++",
+                                "(a + 5) * ++b",
+                                "a + _",
+                                "a + synchronized",
+                                "21",
+                                "1 % ",
+                                "",
+                                " ",
+                                null
+                };
 
+                Arrays.stream(invalidExpressions)
+                                .forEach(expression -> assertFalse(Strings.isArithmeticExpression(expression),
+                                                "Expected invalid: " + expression));
+        }
+}
