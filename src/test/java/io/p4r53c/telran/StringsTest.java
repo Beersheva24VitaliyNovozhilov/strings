@@ -150,6 +150,17 @@ class StringsTest {
                                 "1 % 2",
                                 "3.14 + 2.71 * (3.14 + 2.71)",
                                 "3.14 + .71", // it's legal, 3.85.
+                                "3.14 + 2.71 * (3.14 + 2.71)",
+                                "1_234_567 + 7_654_321",
+                                "1.5e-7 * x",
+                                "3.14159F + 2.71828f",
+                                "1.23456D * 7.89012d",
+                                ".5 * 2",
+                                "1. + .5",
+                                ".25e2 - 10",
+                                "1.5f + .3F",
+                                "1.0d * .5D",
+                                ".123_456 + 7.89_012",
                                 "a + __",
                                 "a + var",
                                 "3 + $var",
@@ -198,4 +209,5 @@ class StringsTest {
                                 .forEach(expression -> assertFalse(Strings.isArithmeticExpression(expression),
                                                 "Expected invalid: " + expression));
         }
+
 }

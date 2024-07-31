@@ -1,6 +1,8 @@
 package io.p4r53c.telran;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.lang.model.SourceVersion;
 
@@ -34,11 +36,12 @@ public class Strings {
             "try", "void", "volatile", "while" };
 
     // HW 11 Consts
-    private static final String DECIMAL_PATTERN = "\\d*\\.?\\d+(_\\d+)*(e[+-]?\\d+)?[dDfF]?";
-    private static final String INTEGER_PATTERN = "\\d+(_\\d+)+[dDfF]?";
-    private static final String HEX_PATTERN = "0[xX][0-9a-fA-F]+[lL]?";
-    private static final String VARIABLE_PATTERN = "[a-zA-Z_$][\\w$]*";
-    private static final String BRACKET_PATTERN = "[()]";
+    private static final String HEX_LITERAL = "0[xX][0-9a-fA-F]+";
+    private static final String INT_LITERAL = "\\d+(_\\d+)*";
+    private static final String FLOAT_LITERAL = "((\\d+(_\\d+)*\\.\\d*(_\\d+)*)|(\\.\\d+(_\\d+)*))([eE][-+]?\\d+)?[fFdD]?|"
+            + INT_LITERAL + "[fFdD]";
+    private static final String IDENTIFIER = "[a-zA-Z_$][a-zA-Z0-9_$]*";
+    private static final String OPERATOR = "([*/+\\-%%])";
 
     private Strings() {
     }
@@ -137,13 +140,23 @@ public class Strings {
     public static boolean isArithmeticExpression(String expression) {
         boolean isValid = true;
 
-        if (expression == null || expression.isEmpty()) {
+        if (expression == null || expression.trim().isEmpty()) {
+            isValid = false;
+        } else if (!hasValidBrackets(expression)) {
             isValid = false;
         } else {
-            isValid = hasValidBrackets(expression) && hasValidOperandsAndOperators(expression);
+            Pattern pattern = Pattern.compile(getMasterRegex());
+            Matcher matcher = pattern.matcher(expression);
+
+            if (!matcher.matches()) {
+                isValid = false;
+            } else {
+                isValid = checkOperands(matcher);
+            }
         }
 
         return isValid;
+
     }
 
     // --- CW 11 Private Methods ---
@@ -177,165 +190,72 @@ public class Strings {
     // --- HW 11 Private Methods ---
 
     /**
-     * Checks if the given arithmetic expression has valid brackets.
+     * Checks if the given expression has valid brackets.
      *
-     * @param expression the arithmetic expression to be checked
+     * @param expression the expression to be checked
      * @return true if the expression has valid brackets, false otherwise
      */
     private static boolean hasValidBrackets(String expression) {
-        int balance = 0;
-        boolean isValid = true;
-
+        int bracketCount = 0;
         int i = 0;
+
         while (i < expression.length()) {
             char c = expression.charAt(i);
             if (c == '(') {
-                balance++;
+                bracketCount++;
             } else if (c == ')') {
-                balance--;
-            }
-            if (balance < 0) {
-                isValid = false;
-                break;
+                bracketCount--;
+                if (bracketCount < 0) {
+                    break;
+                }
             }
             i++;
         }
 
-        if (balance != 0) {
-            isValid = false;
-        }
-        return isValid;
+        return bracketCount == 0;
     }
 
     /**
-     * Checks if the given arithmetic expression has valid operands and operators.
+     * Checks if the given Matcher object has valid operands.
      *
-     * @param expression the arithmetic expression to be checked
-     * @return true if the expression has valid operands and operators, false
-     *         otherwise
+     * @param matcher the Matcher object to check
+     * @return true if all operands are valid, false otherwise
      */
-    private static boolean hasValidOperandsAndOperators(String expression) {
-        char[] chars = expression.toCharArray();
-
-        boolean lastWasOperator = true;
-        boolean hasOperator = false;
+    private static boolean checkOperands(Matcher matcher) {
+        int i = 1;
         boolean valid = true;
 
-        int i = 0;
-
-        while (i < chars.length && valid) {
-            char c = chars[i];
-            if (isOperator(c)) {
-                hasOperator = true;
-                if (lastWasOperator) {
-                    valid = false;
-                } else {
-                    lastWasOperator = true;
-                    i++;
-                }
-            } else if (isOperandCharacter(c)) {
-                lastWasOperator = false;
-
-                String operand = getOperand(chars, i);
-
-                if (!isValidOperand(operand)) {
-                    valid = false;
-                } else {
-                    i += getOperandLength(chars, i);
-                }
-            } else if (Character.isWhitespace(c) || String.valueOf(c).matches(BRACKET_PATTERN)) {
-                i++;
-            } else {
+        while (i <= matcher.groupCount()) {
+            String op = matcher.group(i);
+            if (op != null && !op.isEmpty() && !op.matches(HEX_LITERAL) && !op.matches(FLOAT_LITERAL)
+                    && !op.matches(INT_LITERAL) && (op.equals("_") || SourceVersion.isKeyword(op))) {
                 valid = false;
+                break;
             }
+            i += 2;
         }
-        return valid && hasOperator && !lastWasOperator;
+
+        return valid;
     }
 
     /**
-     * Returns a string representing the regular expression pattern for a valid operand.
+     * Generates a regular expression pattern for a valid arithmetic expression.
      *
-     * @return a regular expression pattern for a valid operand
+     * @return a string representing the regular expression pattern
      */
-    private static String getOperandPattern() {
-        return String.format("%s|%s|%s|%s", DECIMAL_PATTERN, INTEGER_PATTERN, HEX_PATTERN, VARIABLE_PATTERN);
+    private static String getMasterRegex() {
+        return String.format(
+                "^\\s*\\(*\\s*%s\\s*(\\)*\\s*%s\\s*\\(*\\s*%s\\s*\\)*)+\\s*$",
+                getValidOperand(), OPERATOR, getValidOperand());
     }
 
     /**
-     * Checks if the given character is an operator.
+     * Returns a regular expression pattern for a valid operand.
      *
-     * @param c the character to be checked
-     * @return true if the character is an operator, false otherwise
+     * @return a string representing the regular expression pattern for a valid
+     *         operand
      */
-    private static boolean isOperator(char c) {
-        String operatorPattern = "[+\\-*/%]";
-        return String.valueOf(c).matches(operatorPattern);
-    }
-
-    /**
-     * Checks if the given character is a valid operand character.
-     *
-     * @param c the character to be checked
-     * @return true if the character is a valid operand character, false otherwise
-     */
-    private static boolean isOperandCharacter(char c) {
-        return Character.isLetterOrDigit(c) || c == '_' || c == '$' || c == '.';
-    }
-
-    /**
-     * Checks if the given string is a valid operand by matching it against a
-     * pattern
-     * and checking if it is not a keyword in the source version.
-     *
-     * @param operand the string to be checked for validity
-     * @return true if the string is a valid operand, false otherwise
-     */
-    private static boolean isValidOperand(String operand) {
-        return operand.matches(getOperandPattern()) && !SourceVersion.isKeyword(operand);
-    }
-
-    /**
-     * Retrieves a substring from the given character array starting at the
-     * specified index
-     * until a character is encountered that is not a letter, digit, underscore,
-     * dollar sign,
-     * or period. The retrieved substring is returned as a string.
-     *
-     * @param chars the character array to retrieve the substring from
-     * @param index the starting index of the substring
-     * @return the retrieved substring as a string
-     */
-    private static String getOperand(char[] chars, int index) {
-        StringBuilder operand = new StringBuilder();
-
-        while (index < chars.length
-                && (Character.isLetterOrDigit(chars[index])
-                        || isOperandCharacter(chars[index])
-                        || Character.isWhitespace(chars[index]))) {
-            operand.append(chars[index]);
-            index++;
-        }
-        return operand.toString().trim();
-    }
-
-    /**
-     * Retrieves the length of the operand substring starting from the specified
-     * index
-     * in the given character array. The substring consists of characters that are
-     * letters, digits, underscores, dollar signs, or periods.
-     *
-     * @param chars the character array to retrieve the substring from
-     * @param index the starting index of the substring
-     * @return the length of the operand substring
-     */
-    private static int getOperandLength(char[] chars, int index) {
-        int length = 0;
-
-        while (index + length < chars.length
-                && (Character.isLetterOrDigit(chars[index + length])
-                        || isOperandCharacter(chars[index + length]))) {
-            length++;
-        }
-        return length;
+    private static String getValidOperand() {
+        return String.format("(%s|%s|%s|%s)", HEX_LITERAL, FLOAT_LITERAL, INT_LITERAL, IDENTIFIER);
     }
 }
