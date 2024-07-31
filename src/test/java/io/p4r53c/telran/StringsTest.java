@@ -177,6 +177,7 @@ class StringsTest {
                                 "a + 3 *",
                                 "a b + 10", // No more operands merging
                                 "a b c + 10",
+                                "abc def + 10",
                                 "(a b c) + 10",
                                 "* a + b",
                                 "123 456",
