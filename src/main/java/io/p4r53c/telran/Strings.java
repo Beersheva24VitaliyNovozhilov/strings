@@ -43,17 +43,13 @@ public class Strings {
     private static final String IDENTIFIER = "[a-zA-Z_$][a-zA-Z0-9_$]*";
     private static final String OPERATOR = "([*/+\\-%%])";
 
-    /*
-     * CW 12 - This is already done in HW 11
-     * 
-     * @see io.p4r53c.telran.Strings#isArithmeticExpression(String)
-     * 
-     * private static Pattern pattern;
-     * 
-     * static {
-     * pattern = Pattern.compile(getMasterRegex());
-     * }
-     */
+    private static Pattern masterRegex;
+
+    static {
+
+        masterRegex = Pattern.compile(getMasterRegex());
+
+    }
 
     private Strings() {
     }
@@ -157,8 +153,7 @@ public class Strings {
         } else if (!hasValidBrackets(expression)) {
             isValid = false;
         } else {
-            Pattern pattern = Pattern.compile(getMasterRegex());
-            Matcher matcher = pattern.matcher(expression);
+            Matcher matcher = masterRegex.matcher(expression);
 
             if (!matcher.matches()) {
                 isValid = false;
