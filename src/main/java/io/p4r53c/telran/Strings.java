@@ -43,6 +43,18 @@ public class Strings {
     private static final String IDENTIFIER = "[a-zA-Z_$][a-zA-Z0-9_$]*";
     private static final String OPERATOR = "([*/+\\-%%])";
 
+    /*
+     * CW 12 - This is already done in HW 11
+     * 
+     * @see io.p4r53c.telran.Strings#isArithmeticExpression(String)
+     * 
+     * private static Pattern pattern;
+     * 
+     * static {
+     * pattern = Pattern.compile(getMasterRegex());
+     * }
+     */
+
     private Strings() {
     }
 
